@@ -54,4 +54,4 @@ pipenv run python bintool.py enc conf.xml conf.new.bin
 And use the web interface to restore from the newly generated `conf.new.bin` file.
 
 ## Compiled binaries
-For convenience, there are a couple of compiled binaries provided [here](https://github.com/khalednassar/archerc3200-tools/tree/main/compiled-binaries). These are the [nukedns](https://github.com/tjclement/nukedns) binary as well as a [busybox](https://busybox.net/) binary.
+For convenience, there are a couple of binaries provided [here](https://github.com/khalednassar/archerc3200-tools/tree/main/compiled-binaries) for the Archer C3200. These are the [nukedns](https://github.com/tjclement/nukedns) binary as well as a [busybox](https://busybox.net/) binary.
