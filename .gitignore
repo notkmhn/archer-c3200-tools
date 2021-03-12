@@ -1,5 +1,7 @@
-# Unwanted binaries
-libcutil.so
+# Unwanted binaries/paths
+/libcutil.so
+/tmp-firmware
+/firmware.zip
 
 ## Python
 # Byte-compiled / optimized / DLL files
