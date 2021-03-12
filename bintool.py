@@ -16,11 +16,12 @@ LOGLEVEL = 'ERROR'
 ANGR_LOGGERS = [logging.getLogger('angr'), logging.getLogger('cle')]
 any(map(lambda logger: logger.setLevel(LOGLEVEL), ANGR_LOGGERS))
 
-# Based on the cen_uncompressBuff snippet from
-# https://pwn2learn.dusuel.fr/code/get_config_creds_tl-wr902ac.py
-# Blog post
-# https://pwn2learn.dusuel.fr/blog/unauthenticated-root-shell-on-tp-link-tl-wr902ac-router/
+
 def compress(data):
+    # Based on the cen_uncompressBuff snippet from
+    # https://pwn2learn.dusuel.fr/code/get_config_creds_tl-wr902ac.py
+    # Blog post
+    # https://pwn2learn.dusuel.fr/blog/unauthenticated-root-shell-on-tp-link-tl-wr902ac-router/
     comp_sz = len(data)
     comp_buf_sz = 0x12000
 
@@ -28,7 +29,8 @@ def compress(data):
     proj = angr.Project('libcutil.so', load_options={'auto_load_libs': False})
     compress_symbol = proj.loader.find_symbol('cen_compressBuff')
     compress_start = compress_symbol.rebased_addr
-    compress_end = compress_start + compress_symbol.size - 0xc # 0x73fc TODO: figure out a better way to find ret
+    compress_end = compress_start + compress_symbol.size - \
+        0xc  # 0x73fc TODO: figure out a better way to find ret
     opts = {
         angr.options.ZERO_FILL_UNCONSTRAINED_MEMORY,
         angr.options.ZERO_FILL_UNCONSTRAINED_REGISTERS,
@@ -45,15 +47,15 @@ def compress(data):
     # "allocate" room for compressed data on stack (word/32bit aligned address)
     state.regs.sp -= comp_buf_sz + (4 - (comp_buf_sz % 4))
     comp_buf = state.regs.sp
-    
-    comp_buf_start = comp_buf + comp_buf_sz 
+
+    comp_buf_start = comp_buf + comp_buf_sz
     comp_buf_sz_out = comp_buf + comp_buf_sz - 0x8000
 
     # set up registers
-    state.regs.r0 = comp # first argument to cen_compressBuff()
-    state.regs.r1 = comp_sz # second argument to cen_compressBuff()
+    state.regs.r0 = comp  # first argument to cen_compressBuff()
+    state.regs.r1 = comp_sz  # second argument to cen_compressBuff()
     state.regs.r2 = comp_buf_sz_out  # third argument to cen_compressBuff()
-    state.regs.r3 = comp_buf # as usual for MIPS
+    state.regs.r3 = comp_buf  # as usual for MIPS
     state.regs.r15 = compress_start
 
     initial_sp = state.regs.sp
@@ -66,13 +68,14 @@ def compress(data):
     # expected size is returned in r0
     lsize = state_end.solver.eval(state_end.regs.r0)
     return state_end.solver.eval(state_end.memory.load(comp_buf,
-        lsize, angr.archinfo.Endness.LE), cast_to=bytes)
+                                                       lsize, angr.archinfo.Endness.LE), cast_to=bytes)
 
-# Modified from https://github.com/sta-c0000/tpconf_bin_xml
+
 def uncompress(src):
+    # Modified from https://github.com/sta-c0000/tpconf_bin_xml
     '''Uncompress buffer'''
-    block16_countdown = 0 # 16 byte blocks
-    block16_dict_bits = 0 # bits for dictionnary bytes
+    block16_countdown = 0  # 16 byte blocks
+    block16_dict_bits = 0  # bits for dictionnary bytes
 
     def get_bit():
         nonlocal block16_countdown, block16_dict_bits, s_p
@@ -84,7 +87,7 @@ def uncompress(src):
             block16_countdown = 0xF
         block16_dict_bits = block16_dict_bits << 1
         return (((block16_dict_bits >> 1) << 0x10) >> 0x1f) & 0x1
-        #return 1 if block16_dict_bits & 0x10000 else 0 # went past bit
+        # return 1 if block16_dict_bits & 0x10000 else 0 # went past bit
 
     def get_dict_ld():
         bits = 1
@@ -127,7 +130,9 @@ def uncompress(src):
 def verify(src):
     # Try md5 hash excluding up to last 8 (padding) bytes
     if not any(src[:16] == hashlib.md5(src[16:len(src)-i]).digest() for i in range(8)):
-        raise ValueError('ERROR: Bad file or could not decrypt file - MD5 hash check failed!')
+        raise ValueError(
+            'ERROR: Bad file or could not decrypt file - MD5 hash check failed!')
+
 
 def read_bin(binpath):
     with open(binpath, 'rb') as fs:
@@ -137,6 +142,7 @@ def read_bin(binpath):
     verify(decrypted)
     return uncompress(decrypted[16:])
 
+
 def write_bin(data, binpath):
     cipher = DES.new(KEY, DES.MODE_ECB)
     comp = compress(data)
@@ -145,9 +151,11 @@ def write_bin(data, binpath):
     with open(binpath, 'wb') as fs:
         fs.write(cipher.encrypt(final))
 
+
 def main():
     if not sys.argv[3:]:
-        print(f'Usage: python {__file__} {{enc|dec}} <input bin/xml> <output bin/xml>', file=sys.stderr)
+        print(
+            f'Usage: python {__file__} {{enc|dec}} <input bin/xml> <output bin/xml>', file=sys.stderr)
         sys.exit(1)
     try:
         mode = sys.argv[1].lower()
@@ -164,6 +172,7 @@ def main():
     except Exception as e:
         print(str(e), file=sys.stderr)
         sys.exit(2)
+
 
 if __name__ == '__main__':
     main()
