@@ -45,3 +45,10 @@ For example, in order to run a script (say, `init.sh`) off an NTFS or FAT32 form
 ```
 
 A lot of the exploration options explained at [tpconf_bin_xml](https://github.com/sta-c0000/tpconf_bin_xml#exploring-inside-the-router-advanced-users) also apply for the Archer C3200, so check them out if you'd like to delve deeper into the device.
+
+Once you're done with your changes to the XML file, create the .bin file
+```sh
+pipenv run python bintool.py enc conf.xml conf.new.bin
+```
+
+And use the web interface to restore from the newly generated `conf.new.bin` file.
