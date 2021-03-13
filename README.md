@@ -1,5 +1,6 @@
 # archerc3200-tools
-A collection of tools to aid in modifying TP-Link Archer C3200 configuration backups.
+A collection of tools to aid in modifying TP-Link Archer C3200 configuration backups. For information about how and why this collection came to be, [read this blog post](https://rb9.nl/posts/2021-03-12-running-software-on-soho-router/).
+
 Based on [tpconf_bin_xml](https://github.com/sta-c0000/tpconf_bin_xml) and inspired by [pwn2learn's writeup on rooting The TL-WR902AC](https://pwn2learn.dusuel.fr/blog/unauthenticated-root-shell-on-tp-link-tl-wr902ac-router/).
 
 ## Prerequisites
